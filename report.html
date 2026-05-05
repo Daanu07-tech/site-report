@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Site Report - Final Professional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#121212">
+
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="icon" href="data:,">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial;
+            background: #121212;
+            color: white;
+            padding: 10px;
+            margin: 0;
+        }
+
+        h2 { margin-bottom: 12px; font-size: 18px; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border: none;
+            background: #1e1e1e;
+            color: white;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary   { background: #c6e377; color: #111; }
+        .btn-secondary { background: #2a2a2a; color: #ccc; border: 1px solid #444; }
+        .btn-danger    { background: #e05252; color: white; }
+
+        /* ── Image Section ── */
+        .img-section {
+            background: #252525;
+            border: 1px dashed #444;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        .img-preview {
+            width: 100%;
+            max-height: 160px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: none;
+        }
+
+        .img-placeholder {
+            color: #555;
+            font-size: 36px;
+            margin-bottom: 4px;
+        }
+
+        .img-placeholder-text {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .img-btn-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .img-btn-row .btn {
+            flex: 1;
+            padding: 9px 6px;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .btn-upload { background: #1e3a5f; color: #7ab8f5; border: 1px solid #2e5a8f; }
+        .btn-camera { background: #1a3a2a; color: #6ecf94; border: 1px solid #2a6a4a; }
+        .btn-remove { background: #3a1a1a; color: #e08080; border: 1px solid #6a2a2a; font-size: 11px; margin-top: 6px; padding: 6px; }
+
+        /* ── Camera Modal ── */
+        #cameraModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        #cameraModal.open { display: flex; }
+
+        .modal-title {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 10px;
+            background: #000;
+            border: 2px solid #333;
+        }
+
+        #cameraCanvas { display: none; }
+
+        #capturedPreview {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 10px;
+            display: none;
+            border: 2px solid #c6e377;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .modal-actions .btn { flex: 1; margin: 0; }
+
+        /* ── Row Card ── */
+        .row-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .row-label {
+            font-size: 11px;
+            color: #888;
+            margin: 8px 0 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .row-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .row-number {
+            background: #c6e377;
+            color: #111;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .action-bar .btn { flex: 1; margin: 0; }
+
+        @media (max-width: 600px) {
+            h2 { font-size: 16px; }
+            .btn { font-size: 13px; padding: 8px; }
+            input, textarea, select { font-size: 13px;}
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>📋 Site Report</h2>
+
+<input id="client" placeholder="Client">
+<input id="consultant" placeholder="Consultant">
+<input id="contractor" placeholder="Contractor">
+<input id="project" placeholder="Project Name">
+<input id="title" placeholder="Report Title">
+
+<div id="rows"></div>
+
+<div class="action-bar" style="margin-top:16px;">
+    <button class="btn btn-secondary" onclick="addRow()">➕ Add Row</button>
+    <button class="btn btn-primary"   onclick="generatePDF()">📄 Generate PDF</button>
+</div>
+
+<!-- ══════════════ Camera Modal ══════════════ -->
+<div id="cameraModal">
+    <div class="modal-title">📷 Take Photo</div>
+
+    <video id="cameraVideo" autoplay playsinline></video>
+    <canvas id="cameraCanvas"></canvas>
+    <img id="capturedPreview" alt="Captured">
+
+    <div class="modal-actions" id="liveActions">
+        <button class="btn btn-primary"   onclick="capturePhoto()">📸 Capture</button>
+        <button class="btn btn-secondary" onclick="closeCamera()">✕ Cancel</button>
+    </div>
+
+    <div class="modal-actions" id="previewActions" style="display:none;">
+        <button class="btn btn-primary"   onclick="confirmPhoto()">✔ Use Photo</button>
+        <button class="btn btn-secondary" onclick="retakePhoto()">🔄 Retake</button>
+        <button class="btn btn-danger"    onclick="closeCamera()">✕ Cancel</button>
+    </div>
+</div>
+
+<script>
+let rowsData = [];
+let cameraTargetIndex = null;
+let cameraStream = null;
+
+// ── Add Row ──
+function addRow() {
+    let i = rowsData.length;
+
+    let html = `
+    <div class="row-card" id="card${i}">
+        <div class="row-header">
+            <span class="row-number">Item ${i + 1}</span>
+        </div>
+
+        <div class="img-section" id="imgSection${i}">
+            <div class="img-placeholder" id="imgPlaceholder${i}">🖼️</div>
+            <div class="img-placeholder-text" id="imgPlaceholderText${i}">No image selected</div>
+            <img class="img-preview" id="imgPreview${i}" src="" alt="Preview">
+            <div class="img-btn-row">
+                <button class="btn btn-upload" onclick="document.getElementById('fileInput${i}').click()">📁 Upload</button>
+                <button class="btn btn-camera" onclick="openCamera(${i})">📷 Camera</button>
+            </div>
+            <input type="file" id="fileInput${i}" accept="image/*" capture="environment" onchange="loadImage(event,${i})">
+            <button class="btn btn-remove" id="removeBtn${i}" style="display:none" onclick="removeImage(${i})">🗑 Remove Image</button>
+        </div>
+
+        <div class="row-label">Description</div>
+        <textarea id="desc${i}" placeholder="Describe the issue..."></textarea>
+
+        <div class="row-label">Impact</div>
+        <textarea id="impact${i}" placeholder="What is the impact?"></textarea>
+
+        <div class="row-label">Target Date</div>
+        <input type="date" id="target${i}">
+
+        <div class="row-label">Responsible Person</div>
+        <input id="person${i}" placeholder="Full name">
+
+        <div class="row-label">Company</div>
+        <input id="company${i}" placeholder="Company name">
+
+        <div class="row-label">Status</div>
+        <select id="status${i}">
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Closed</option>
+        </select>
+
+        <div class="row-label">Remarks</div>
+        <textarea id="remarks${i}" placeholder="Additional remarks..."></textarea>
+    </div>
+    `;
+
+    document.getElementById("rows").insertAdjacentHTML("beforeend", html);
+    rowsData.push({ image: "" });
+}
+
+// ── Load Image from file ──
+function loadImage(e, i) {
+    let file = e.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function() {
+        setImage(i, reader.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+// ── Set image & update preview ──
+function setImage(i, dataUrl) {
+    rowsData[i].image = dataUrl;
+
+    let preview = document.getElementById("imgPreview" + i);
+    let placeholder = document.getElementById("imgPlaceholder" + i);
+    let placeholderText = document.getElementById("imgPlaceholderText" + i);
+    let removeBtn = document.getElementById("removeBtn" + i);
+
+    preview.src = dataUrl;
+    preview.style.display = "block";
+    placeholder.style.display = "none";
+    placeholderText.style.display = "none";
+    removeBtn.style.display = "block";
+}
+
+// ── Remove image ──
+function removeImage(i) {
+    rowsData[i].image = "";
+    let preview = document.getElementById("imgPreview" + i);
+    let placeholder = document.getElementById("imgPlaceholder" + i);
+    let placeholderText = document.getElementById("imgPlaceholderText" + i);
+    let removeBtn = document.getElementById("removeBtn" + i);
+
+    preview.src = "";
+    preview.style.display = "none";
+    placeholder.style.display = "block";
+    placeholderText.style.display = "block";
+    removeBtn.style.display = "none";
+
+    document.getElementById("fileInput" + i).value = "";
+}
+
+// ── Camera ──
+async function openCamera(i) {
+    cameraTargetIndex = i;
+
+    let video = document.getElementById("cameraVideo");
+    let preview = document.getElementById("capturedPreview");
+
+    video.style.display = "block";
+    preview.style.display = "none";
+    document.getElementById("liveActions").style.display = "flex";
+    document.getElementById("previewActions").style.display = "none";
+
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false
+        });
+        video.srcObject = cameraStream;
+        document.getElementById("cameraModal").classList.add("open");
+    } catch (err) {
+        alert("Camera not available: " + err.message);
+    }
+}
+
+function capturePhoto() {
+    let video = document.getElementById("cameraVideo");
+    let canvas = document.getElementById("cameraCanvas");
+    let preview = document.getElementById("capturedPreview");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+
+    let dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+    preview.src = dataUrl;
+
+    video.style.display = "none";
+    preview.style.display = "block";
+    document.getElementById("liveActions").style.display = "none";
+    document.getElementById("previewActions").style.display = "flex";
+}
+
+function confirmPhoto() {
+    let dataUrl = document.getElementById("capturedPreview").src;
+    setImage(cameraTargetIndex, dataUrl);
+    closeCamera();
+}
+
+function retakePhoto() {
+    let video = document.getElementById("cameraVideo");
+    let preview = document.getElementById("capturedPreview");
+
+    video.style.display = "block";
+    preview.style.display = "none";
+    document.getElementById("liveActions").style.display = "flex";
+    document.getElementById("previewActions").style.display = "none";
+}
+
+function closeCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+    document.getElementById("cameraModal").classList.remove("open");
+    cameraTargetIndex = null;
+}
+
+// ── Collect Data ──
+function collect() {
+    return rowsData.map((r, i) => ({
+        no: i + 1,
+        image: r.image,
+        desc: document.getElementById("desc"+i).value,
+        impact: document.getElementById("impact"+i).value,
+        target: document.getElementById("target"+i).value,
+        person: document.getElementById("person"+i).value,
+        company: document.getElementById("company"+i).value,
+        status: document.getElementById("status"+i).value,
+        remarks: document.getElementById("remarks"+i).value
+    }));
+}
+
+// Generate PDF
+async function generatePDF() {
+    const { jsPDF } = window.jspdf;
+
+    let doc = new jsPDF('l', 'mm', 'a4');
+
+    let pageWidth = 297;
+    let margin = 15;
+
+    let cols = [10,50,50,40,30,40,25,42];
+    let totalWidth = cols.reduce((a,b)=>a+b,0);
+
+    let startX = (pageWidth - totalWidth) / 2;
+
+    let yStart = 35;
+    let y = yStart;
+
+    let rowHeight = 40;
+    let rowLimit = 4;
+    let rowCount = 0;
+
+    let data = collect();
+    let totalPages = Math.ceil(data.length / rowLimit);
+    let pageNo = 1;
+
+    function drawHeader(pageNo) {
+        doc.setFontSize(12);
+        doc.text(title.value, pageWidth/2, 12, { align: "center" });
+
+        doc.setFontSize(9);
+        doc.text("Client: " + client.value, startX, 20);
+        doc.text("Consultant: " + consultant.value, startX + 90, 20);
+        doc.text("Contractor: " + contractor.value, startX + 180, 20);
+        doc.text("Project: " + project.value, startX, 26);
+
+        doc.text(`Page ${pageNo} / ${totalPages}`, pageWidth - margin, 12, { align: "right" });
+    }
+
+    function drawTableHeader(y) {
+        let headers = ["No","Image","Description","Impact","Target","Responsible","Status","Remarks"];
+        let x = startX;
+
+        doc.setFontSize(8);
+
+        headers.forEach((h, i) => {
+            doc.rect(x, y, cols[i], 10);
+            doc.text(h, x+2, y+6);
+            x += cols[i];
+        });
+    }
+
+    drawHeader(pageNo);
+    drawTableHeader(y);
+    y += 12;
+
+    data.forEach((r) => {
+
+        if (rowCount === rowLimit) {
+            doc.addPage();
+            pageNo++;
+            y = yStart;
+
+            drawHeader(pageNo);
+            drawTableHeader(y);
+            y += 12;
+
+            rowCount = 0;
+        }
+
+        let x = startX;
+
+        cols.forEach(w => {
+            doc.rect(x, y, w, rowHeight);
+            x += w;
+        });
+
+        x = startX;
+
+        doc.text(String(r.no), x+2, y+5);
+        x += cols[0];
+
+        if (r.image) {
+            doc.addImage(r.image, 'JPEG', x+2, y+2, cols[1]-4, rowHeight-4);
+        }
+        x += cols[1];
+
+        doc.text(doc.splitTextToSize(r.desc, cols[2]-5), x+2, y+5);
+        x += cols[2];
+
+        doc.text(doc.splitTextToSize(r.impact, cols[3]-5), x+2, y+5);
+        x += cols[3];
+
+        doc.text(r.target || "", x+2, y+5);
+        x += cols[4];
+
+        doc.text(doc.splitTextToSize(r.person + "/" + r.company, cols[5]-5), x+2, y+5);
+        x += cols[5];
+
+        doc.text(r.status, x+2, y+5);
+        x += cols[6];
+
+        doc.text(doc.splitTextToSize(r.remarks, cols[7]-5), x+2, y+5);
+
+        y += rowHeight;
+        rowCount++;
+    });
+
+    doc.save("Final_Site_Report.pdf");
+}
+
+// Start with one row
+addRow();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Site Report App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #121212;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      background: #c6e377;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>📋 Site Report Tool</h1>
+  <button class="btn" onclick="start()">Start Report</button>
+</div>
+
+<script>
+function start() {
+  window.location.href = "report.html?v=" + new Date().getTime();
+}
+</script>
+
+</body>
+</html>
