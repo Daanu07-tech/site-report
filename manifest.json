@@ -1,11 +1,10 @@
 {
-  "name": "Site Report Tool",
-  "short_name": "Site Report",
-  "start_url": "/site-report/",
+  "name": "JKS HiLLS",
+  "short_name": "JKS",
+  "start_url": "/site-report/index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#c6e377",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
