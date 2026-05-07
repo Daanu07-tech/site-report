@@ -349,7 +349,9 @@ async function openCamera(i) {
         }
 
         cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: {
+                facingMode: "environment"
+            },
             audio: false
         });
 
@@ -444,7 +446,7 @@ function collect() {
         target: document.getElementById("target"+i).value,
         person: document.getElementById("person"+i).value,
         company: document.getElementById("company"+i).value,
-        status: document.getElementById("status"+i).value,
+        status: "",
         remarks: document.getElementById("remarks"+i).value
     }));
 }
@@ -458,7 +460,7 @@ async function generatePDF() {
     let pageWidth = 297;
     let margin = 15;
 
-    let cols = [10,50,50,40,30,40,25,42];
+    let cols = [10,55,60,45,30,50,47];
     let totalWidth = cols.reduce((a,b)=>a+b,0);
 
     let startX = (pageWidth - totalWidth) / 2;
@@ -494,7 +496,7 @@ async function generatePDF() {
     }
 
     function drawTableHeader(y) {
-        let headers = ["No","Image","Description","Impact","Target","Responsible","Status","Remarks"];
+        let headers = ["No","Image","Description","Impact","Target","Responsible","Remarks"];
         let x = startX;
 
         doc.setFontSize(8);
@@ -537,19 +539,35 @@ async function generatePDF() {
         x += cols[0];
 
         if (r.image) {
-            let imgWidth = cols[1] - 4;
-            let imgHeight = rowHeight - 4;
-            
-            doc.addImage(
-                r.image, 
-                'JPEG', 
-                x+2, 
-                y+2, 
-                imgWidth, 
-                imgHeight, 
-                '', 
-                'FAST'
-            );
+             let img = new Image();
+             img.src = r.image;
+
+             let boxWidth = cols[1] - 4;
+             let boxHeight = rowHeight - 4;
+
+             let ratio = img.width / img.height;
+
+             let imgWidth = boxWidth;
+             let imgHeight = imgWidth / ratio;
+
+             if (imgHeight > boxHeight) {
+               imgHeight = boxHeight;
+               imgWidth = imgHeight * ratio;
+    }
+
+    let offsetX = x + 2 + ((boxWidth - imgWidth) / 2);
+    let offsetY = y + 2 + ((boxHeight - imgHeight) / 2);
+
+    doc.addImage(
+        r.image,
+        'JPEG',
+        offsetX,
+        offsetY,
+        imgWidth,
+        imgHeight,
+        '',
+        'FAST'
+    );
         }
         x += cols[1];
 
@@ -564,9 +582,6 @@ async function generatePDF() {
 
         doc.text(doc.splitTextToSize(r.person + "/" + r.company, cols[5]-5), x+2, y+5);
         x += cols[5];
-
-        doc.text(r.status, x+2, y+5);
-        x += cols[6];
 
         doc.text(doc.splitTextToSize(r.remarks, cols[7]-5), x+2, y+5);
 
