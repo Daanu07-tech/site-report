@@ -209,7 +209,6 @@
 
 <input id="client" placeholder="Client">
 <input id="consultant" placeholder="Consultant">
-<input id="contractor" placeholder="Contractor">
 <input id="project" placeholder="Project Name">
 <input id="title" placeholder="Report Title">
 
@@ -282,13 +281,6 @@ function addRow() {
         <div class="row-label">Company</div>
         <input id="company${i}" placeholder="Company name">
 
-        <div class="row-label">Status</div>
-        <select id="status${i}">
-            <option>Open</option>
-            <option>In Progress</option>
-            <option>Closed</option>
-        </select>
-
         <div class="row-label">Remarks</div>
         <textarea id="remarks${i}" placeholder="Additional remarks..."></textarea>
     </div>
@@ -357,11 +349,7 @@ async function openCamera(i) {
         }
 
         cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: {
-                    ideal: "environment"
-                }
-            },
+            video: true,
             audio: false
         });
 
@@ -487,13 +475,19 @@ async function generatePDF() {
     let pageNo = 1;
 
     function drawHeader(pageNo) {
+        doc.setFontSize(14);
+        doc.setFont(undefined, "bold");
+
+        doc.text("JKS HiLLS Constructions Co.LLC", startX, 12);
+
         doc.setFontSize(12);
+        doc.setFont(undefined, "normal");
+        
         doc.text(title.value, pageWidth/2, 12, { align: "center" });
 
         doc.setFontSize(9);
         doc.text("Client: " + client.value, startX, 20);
         doc.text("Consultant: " + consultant.value, startX + 90, 20);
-        doc.text("Contractor: " + contractor.value, startX + 180, 20);
         doc.text("Project: " + project.value, startX, 26);
 
         doc.text(`Page ${pageNo} / ${totalPages}`, pageWidth - margin, 12, { align: "right" });
@@ -543,7 +537,19 @@ async function generatePDF() {
         x += cols[0];
 
         if (r.image) {
-            doc.addImage(r.image, 'JPEG', x+2, y+2, cols[1]-4, rowHeight-4);
+            let imgWidth = cols[1] - 4;
+            let imgHeight = rowHeight - 4;
+            
+            doc.addImage(
+                r.image, 
+                'JPEG', 
+                x+2, 
+                y+2, 
+                imgWidth, 
+                imgHeight, 
+                '', 
+                'FAST'
+            );
         }
         x += cols[1];
 
