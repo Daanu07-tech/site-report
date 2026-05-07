@@ -261,7 +261,7 @@ function addRow() {
                 <button class="btn btn-upload" onclick="document.getElementById('fileInput${i}').click()">📁 Upload</button>
                 <button class="btn btn-camera" onclick="openCamera(${i})">📷 Camera</button>
             </div>
-            <input type="file" id="fileInput${i}" accept="image/*" capture="environment" onchange="loadImage(event,${i})">
+            <input type="file" id="fileInput${i}" accept="image/*" style="display:block;width:100%;padding:10px;background:#1e1e1e;color:white;border:none;border-radius:6px;margin-top:8px;" onchange="loadImage(event,${i})">
             <button class="btn btn-remove" id="removeBtn${i}" style="display:none" onclick="removeImage(${i})">🗑 Remove Image</button>
         </div>
 
