@@ -539,54 +539,17 @@ async function generatePDF() {
         x += cols[0];
 
         if (r.image) {
-              let img = new Image();
-              img.src = r.image;
-
-             await new Promise(resolve => {
-        img.onload = resolve;
-    });
-
-    let canvas = document.createElement("canvas");
-    let ctx = canvas.getContext("2d");
-
-    let isLandscape = img.width > img.height;
-
-    if (isLandscape) {
-
-        canvas.width = img.height;
-        canvas.height = img.width;
-
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(90 * Math.PI / 180);
-
-        ctx.drawImage(
-            img,
-            -img.width / 2,
-            -img.height / 2
-        );
-
-    } else {
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        ctx.drawImage(img, 0, 0);
-    }
-
-    let rotatedImage = canvas.toDataURL("image/jpeg", 1.0);
-
-    let boxWidth = cols[1] - 4;
+                  let boxWidth = cols[1] - 4;
     let boxHeight = rowHeight - 4;
 
     doc.addImage(
-        rotatedImage,
+        r.image,
         'JPEG',
         x + 2,
         y + 2,
         boxWidth,
         boxHeight
     );
-    }
         }
         x += cols[1];
 
