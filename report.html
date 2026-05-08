@@ -66,7 +66,7 @@
         .img-preview {
             width: 100%;
             max-height: 160px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 6px;
             margin-bottom: 8px;
             display: none;
@@ -540,7 +540,7 @@ async function generatePDF() {
 
         if (r.image) {
                   let boxWidth = cols[1] - 4;
-    let boxHeight = rowHeight - 4;
+                  let boxHeight = rowHeight - 4;
 
     doc.addImage(
         r.image,
@@ -565,7 +565,7 @@ async function generatePDF() {
         doc.text(doc.splitTextToSize(r.person + "/" + r.company, cols[5]-5), x+2, y+5);
         x += cols[5];
 
-        doc.text(doc.splitTextToSize(r.remarks, cols[7]-5), x+2, y+5);
+        doc.text(doc.splitTextToSize(r.remarks, cols[6]-5), x+2, y+5);
 
         y += rowHeight;
         rowCount++;
