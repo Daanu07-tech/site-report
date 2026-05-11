@@ -443,8 +443,22 @@ function confirmPhoto() {
     let dataUrl = document.getElementById("capturedPreview").src;
     setImage(cameraTargetIndex, dataUrl);
     closeCamera();
-}
+    
+fetch(dataUrl)
+.then(res => res.blob())
+.then(blob => {
 
+    let file = new File([blob], "camera.jpg", {
+        type: "image/jpeg"
+    });
+
+    let previewImg = document.getElementById(
+        "imgPreview" + cameraTargetIndex
+    );
+
+    openCropper(file, previewImg);
+});
+    
 function retakePhoto() {
     let video = document.getElementById("cameraVideo");
     let preview = document.getElementById("capturedPreview");
@@ -666,8 +680,14 @@ function openCropper(file, previewImg){
 }
 
 function rotateImage(){
-    cropper.rotate(90);
+    
+    if (!cropper) return;
+
+    cropper.rotateTo(
+        (cropper.getData().rotate || 0) + 90
+    );
 }
+
 
 function saveCrop(){
 
@@ -678,13 +698,14 @@ function saveCrop(){
 
     const croppedImage = canvas.toDataURL('image/jpeg');
 
-    currentPreview.src = croppedImage;
    let index = currentPreview.id.replace("imgPreview","");
    setImage(index, croppedImage);
 
     document.getElementById('cropModal').style.display='none';
 
     cropper.destroy();
+
+    cropper = null;
 }
 </script>
 
