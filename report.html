@@ -10,6 +10,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.min.css"/>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
     <link rel="apple-touch-icon" href="icon-192.png?v=3">
@@ -200,6 +202,34 @@
             .btn { font-size: 13px; padding: 8px; }
             input, textarea, select { font-size: 13px;}
         }
+
+        .crop-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    z-index:9999;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.crop-box{
+    width:90%;
+    max-width:500px;
+    background:#111;
+    padding:10px;
+    border-radius:12px;
+}
+
+#cropImage{
+    max-width:100%;
+}
+
+.crop-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
     </style>
 </head>
 
@@ -294,11 +324,9 @@ function addRow() {
 function loadImage(e, i) {
     let file = e.target.files[0];
     if (!file) return;
-    let reader = new FileReader();
-    reader.onload = function() {
-        setImage(i, reader.result);
-    };
-    reader.readAsDataURL(file);
+    let previewImg = document.getElementById("imgPreview" + i);
+
+    openCropper(file, previewImg);
 }
 
 // ── Set image & update preview ──
@@ -608,7 +636,75 @@ async function generatePDF() {
 
 // Start with one row
 addRow();
+
+    let cropper;
+let currentPreview;
+
+function openCropper(file, previewImg){
+
+    currentPreview = previewImg;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        document.getElementById('cropModal').style.display='flex';
+
+        const image = document.getElementById('cropImage');
+
+        image.src = e.target.result;
+
+        if(cropper) cropper.destroy();
+
+        cropper = new Cropper(image,{
+            aspectRatio: 3/4,
+            viewMode:1
+        });
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function rotateImage(){
+    cropper.rotate(90);
+}
+
+function saveCrop(){
+
+    const canvas = cropper.getCroppedCanvas({
+        width:800,
+        height:1000
+    });
+
+    const croppedImage = canvas.toDataURL('image/jpeg');
+
+    currentPreview.src = croppedImage;
+   let index = currentPreview.id.replace("imgPreview","");
+
+setImage(index, croppedImage);
+
+    document.getElementById('cropModal').style.display='none';
+
+    cropper.destroy();
+}
 </script>
+
+    <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
+
+    <div id="cropModal" class="crop-modal" style="display:none;">
+
+    <div class="crop-box">
+
+        <img id="cropImage">
+
+        <div class="crop-actions">
+            <button onclick="rotateImage()">↻ Rotate</button>
+            <button onclick="saveCrop()">Save</button>
+        </div>
+
+    </div>
+
+</div>
 
 </body>
 </html>
