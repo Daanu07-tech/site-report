@@ -551,17 +551,21 @@ async function generatePDF() {
 
         if (isLandscape) {
 
+            doc.saveGraphicsState();
+
             doc.addImage(
                 r.image,
                 'JPEG',
                 x + 2,
-                y + rowHeight - 2,
+                y + 2,
                 boxHeight,
                 boxWidth,
                 '',
                 'FAST',
                 90
             );
+
+                doc.restoreGraphicsState();
 
         } else {
 
