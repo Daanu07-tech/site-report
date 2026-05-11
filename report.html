@@ -539,20 +539,40 @@ async function generatePDF() {
         x += cols[0];
 
         if (r.image) {
-              let boxWidth = cols[1] - 4;
+            
+
+    let boxWidth = cols[1] - 4;
     let boxHeight = rowHeight - 4;
 
-    doc.addImage(
-        r.image,
-        'JPEG',
-        x + 2,
-        y + 2,
-        boxHeight,
-        boxWidth,
-        '',
-        'FAST',
-        90
-    );
+    let imgProps = doc.getImageProperties(r.image);
+
+    let isLandscape = imgProps.width > imgProps.height;
+
+    if (isLandscape) {
+
+        doc.addImage(
+            r.image,
+            'JPEG',
+            x + 2,
+            y + rowHeight - 2,
+            boxHeight,
+            boxWidth,
+            '',
+            'FAST',
+            90
+        );
+
+    } else {
+
+        doc.addImage(
+            r.image,
+            'JPEG',
+            x + 2,
+            y + 2,
+            boxWidth,
+            boxHeight
+        );
+  
         }
         x += cols[1];
 
